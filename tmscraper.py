@@ -18,24 +18,14 @@ A module to scrape trademe for Hamilton housing stuff.
 from pprint import pprint
 import requests
 from bs4 import BeautifulSoup
-import pandas
 from rateslookup import get_rates
+import tmexcel
 
 TM_SEARCH = r"https://www.trademe.co.nz/browse/categoryattributesearchresults.aspx?134=14&135=16&136=&153=&132=PROPERTY&122=3&122=5&49=400000&49=450000&29=&123=0&123=0&search=1&sidebar=1&cid=5748&rptpath=350-5748-"
 TM_SITE = r"https://www.trademe.co.nz"
 FIND_LINKS = {"class": "tmp-search-card-list-view__link"}
 EXCEL_FILE = "Trademe Property List.xlsx"
-COLUMNS_TO_KEEP = [
-    "id",
-    "Location",
-    "Price",
-    "Property type",
-    "Rateable value (RV)",
-    "Rooms",
-    "href",
-    "Floor area",
-    "Land area",
-]
+
 
 
 def get_property_table(href):
@@ -88,8 +78,13 @@ if __name__ == "__main__":
 
     print(f"Extracted {len(properties_data)} properties!")
 
+    old_properties = tmexcel.get_current_ids()
+    new_properties_data = [p for p in properties_data if p not in old_properties]
+
+    print(f"Extracted {len(new_properties_data)} properties!")
+
     print("Getting rates")
-    for prop in properties_data:
+    for prop in new_properties_data:
         loc = prop["Location:"]
         if "Rateable value (RV):" in prop:
             print("Already got rates value for ", loc)
@@ -102,10 +97,7 @@ if __name__ == "__main__":
             print("The RV amount is", rates)
 
     print("Saving file")
-    tm_df = pandas.DataFrame(properties_data)
-    tm_df_new_columns = tm_df.rename(
-        lambda x: x.replace(":", ""), axis="columns"
-    )
+    tmexel.save_file(new_properties_data)
 
 
     tm_df_new_columns.to_excel(

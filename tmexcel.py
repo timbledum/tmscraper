@@ -7,7 +7,17 @@ EXCEL_FILE = "Trademe Property List.xlsx"
 SHEET_NAME = "Properties"
 ID = "id"
 HEADERS_ROW = 1
-
+COLUMNS_TO_KEEP = [
+    "id",
+    "Location",
+    "Price",
+    "Property type",
+    "Rateable value (RV)",
+    "Rooms",
+    "href",
+    "Floor area",
+    "Land area",
+]
 
 def get_current_ids():
     xl_sheet = openpyxl.load_workbook(EXCEL_FILE).active
@@ -23,8 +33,15 @@ def get_current_ids():
 
 
 def save_file(data):
-    xl_sheet = openpyxl.load_workbook(EXCEL_FILE).active
+    xl_wb = openpyxl.load_workbook(EXCEL_FILE)
+    xl_sheet = xl_wb.active
+    data_list = [[row[key] for key in COLUMNS_TO_KEEP] for row in data]
+
+    for row in data_list:
+        xl_sheet.append(row)
     
+    xl_wb.save(EXCEL_FILE)
+
 
 
 if __name__ == "__main__":
