@@ -61,13 +61,15 @@ def get_href_id(prop):
     return output
 
 
-def get_properties(bs_tree):
+def get_properties(bs_tree, old_properties):
     properties = bs_tree.find_all(**FIND_LINKS)
     data = [get_href_id(prop) for prop in properties]
-    for prop in data:
+    data_filtered = [prop for prop in data if prop['id'] not in old_properties]
+
+    for prop in data_filtered:
         print("Processing:", prop["id"])
         prop.update(get_property_table(prop["href"]))
-    return data
+    return data_filtered
 
 
 if __name__ == "__main__":
@@ -76,29 +78,24 @@ if __name__ == "__main__":
     html = tm_request.text
     html_bs = BeautifulSoup(html, "html.parser")
 
-    properties_data = get_properties(html_bs)
+    old_properties = tmexcel.get_current_ids()
+    properties_data = get_properties(html_bs, old_properties)
 
     next_links = html_bs.find(id="PagingFooter")("a")[:-1]
     next_pages = [TM_SITE + a["href"] for a in next_links]
 
-    for page in next_pages:
+    for number, page in enumerate(next_pages):
+        print("Processing page", number + 2)
         page_request = requests.get(page)
         page_html = page_request.text
         page_bs = BeautifulSoup(page_html, "html.parser")
-        page_data = get_properties(page_bs)
+        page_data = get_properties(page_bs, old_properties)
         properties_data += page_data
 
-    print(f"Extracted {len(properties_data)} properties!")
-
-    old_properties = tmexcel.get_current_ids()
-    new_properties_data = [
-        p for p in properties_data if p["id"] not in old_properties
-    ]
-
-    print(f"Extracted {len(new_properties_data)} new properties!")
+    print(f"Extracted {len(properties_data)} new properties!")
 
     print("Getting rates")
-    for prop in new_properties_data:
+    for prop in properties_data:
         loc = prop["Location"]
         if "Rateable value (RV)" in prop:
             print("Already got rates value for ", loc)
@@ -111,4 +108,4 @@ if __name__ == "__main__":
             print("The RV amount is", rates)
 
     print("Saving file")
-    tmexcel.save_file(new_properties_data)
+    tmexcel.save_file(properties_data)
