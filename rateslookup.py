@@ -29,7 +29,7 @@ def get_rates(prop):
     try:
         link = results.find("a")["href"]
     except TypeError:
-        print('No RV found :(')
+        print("No RV found :(")
         return "No RV found."
 
     # get rates value

@@ -3,7 +3,7 @@
 
 import openpyxl
 
-EXCEL_FILE = "Trademe Property List.xlsx"
+EXCEL_FILE = "/Users/timbledum/Dropbox/Documents/Trademe Property List.xlsx"
 SHEET_NAME = "Properties"
 ID = "id"
 HEADERS_ROW = 1
@@ -17,11 +17,13 @@ COLUMNS_TO_KEEP = [
     "href",
     "Floor area",
     "Land area",
+    "Date listed",
 ]
+
 
 def get_current_ids():
     xl_sheet = openpyxl.load_workbook(EXCEL_FILE).active
-    
+
     # Ascertain the ID column
     headers = xl_sheet[HEADERS_ROW]
     id_column = [cell.column for cell in headers if cell.value == ID][0]
@@ -35,13 +37,12 @@ def get_current_ids():
 def save_file(data):
     xl_wb = openpyxl.load_workbook(EXCEL_FILE)
     xl_sheet = xl_wb.active
-    data_list = [[row[key] for key in COLUMNS_TO_KEEP] for row in data]
+    data_list = [[row.get(key, "") for key in COLUMNS_TO_KEEP] for row in data]
 
     for row in data_list:
         xl_sheet.append(row)
-    
-    xl_wb.save(EXCEL_FILE)
 
+    xl_wb.save(EXCEL_FILE)
 
 
 if __name__ == "__main__":
