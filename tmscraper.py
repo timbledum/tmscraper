@@ -79,6 +79,7 @@ if __name__ == "__main__":
     html = tm_request.text
     html_bs = BeautifulSoup(html, "html.parser")
 
+    tmexcel.create_workbook_if_not_present()
     old_properties = tmexcel.get_current_ids()
     properties_data = get_properties(html_bs, old_properties)
 

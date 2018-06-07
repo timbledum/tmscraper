@@ -4,6 +4,7 @@
 import openpyxl
 
 EXCEL_FILE = "/Users/timbledum/Dropbox/Documents/Trademe Property List.xlsx"
+
 SHEET_NAME = "Properties"
 ID = "id"
 HEADERS_ROW = 1
@@ -19,6 +20,16 @@ COLUMNS_TO_KEEP = [
     "Land area",
     "Date listed",
 ]
+
+
+def create_workbook_if_not_present():
+    try:
+        openpyxl.load_workbook(EXCEL_FILE)
+    except FileNotFoundError:
+        wb = openpyxl.Workbook()
+        sh = wb.active
+        sh.append(COLUMNS_TO_KEEP)
+        wb.save(EXCEL_FILE)
 
 
 def get_current_ids():
