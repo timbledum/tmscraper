@@ -28,7 +28,7 @@ sys.path.append("/Users/timbledum/Documents/Python/tmhouse/")
 from rateslookup import get_rates
 import tmexcel
 
-TM_SEARCH = r"https://www.trademe.co.nz/browse/categoryattributesearchresults.aspx?134=14&135=16&136=&153=&132=PROPERTY&122=3&122=5&49=400000&49=450000&29=&123=0&123=0&search=1&sidebar=1&cid=5748&rptpath=350-5748-"
+TM_SEARCH = r"https://www.trademe.co.nz/browse/categoryattributesearchresults.aspx?134=14&135=16&136=&153=&132=PROPERTY&122=3&122=6&49=350000&49=500000&29=House&123=0&123=0&search=1&sidebar=1&cid=5748&rptpath=350-5748-"
 TM_SITE = r"https://www.trademe.co.nz"
 FIND_LINKS = {"class": "tmp-search-card-list-view__link"}
 
@@ -47,7 +47,7 @@ def get_property_table(href):
         listing_dict[key] = value
 
     listing_date = prop_soup.find(id="PriceSummaryDetails_ListedStatusText")
-    listing_dict["Listing date"] = listing_date.text[8:18].replace(
+    listing_dict["Date listed"] = listing_date.text[8:18].replace(
         ",", ""
     ) + " 18"
 
@@ -73,6 +73,7 @@ def get_properties(bs_tree, old_properties):
 
 
 if __name__ == "__main__":
+    print("#" * 40 + "\n")
     print("Getting properties", str(datetime.now()))
     tm_request = requests.get(TM_SEARCH)
     html = tm_request.text
@@ -107,5 +108,5 @@ if __name__ == "__main__":
             prop["Rateable value (RV)"] = rates
             print("The RV amount is", rates)
 
-    print("Saving file")
+    print("Saving file\n\n")
     tmexcel.save_file(properties_data)
