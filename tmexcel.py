@@ -23,7 +23,7 @@ COLUMNS_TO_KEEP = [
 
 def create_workbook_if_not_present():
     try:
-        openpyxl.load_workbook(EXCEL_FILE)
+        openpyxl.load_workbook(settings.excel_file_address)
     except FileNotFoundError:
         wb = openpyxl.Workbook()
         sh = wb.active
@@ -45,16 +45,15 @@ def get_current_ids():
     return property_id_set
 
 
-def save_file(data):
+def save_file(data, sheet, columns):
     xl_wb = openpyxl.load_workbook(settings.excel_file_address)
-    xl_sheet = xl_wb[SHEET_NAME]
-    data_list = [[row.get(key, "") for key in COLUMNS_TO_KEEP] for row in data]
+    xl_sheet = xl_wb[sheet]
+    data_list = [[row.get(key, "") for key in columns] for row in data]
 
     for row in data_list:
         xl_sheet.append(row)
 
     xl_wb.save(settings.excel_file_address)
-
 
 if __name__ == "__main__":
     print(get_current_ids())

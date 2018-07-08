@@ -111,9 +111,12 @@ if __name__ == "__main__":
             print("The RV amount is", rates)
 
     print("Saving file")
-    tmexcel.save_file(properties_data)
+    tmexcel.save_file(properties_data, tmexcel.SHEET_NAME, tmexcel.COLUMNS_TO_KEEP)
 
     print('Collecting sales prices')
-    tmsales.process_sales()
+    previous_sales = tmsales.get_previous_sales()
+    current_sales = tmsales.get_sale_prices()
+    sales_to_save = [sale for sale in current_sales if sale[tmsales.COLUMNS[0]] not in previous_sales]
+    tmexcel.save_file(sales_to_save, tmsales.SALES_SHEET, tmsales.COLUMNS)
 
     print('Done!!!\n\n')
