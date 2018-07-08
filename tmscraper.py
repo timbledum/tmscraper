@@ -23,7 +23,7 @@ from pprint import pprint
 import requests
 from bs4 import BeautifulSoup
 
-sys.path.append("/Users/timbledum/Documents/Python/tmhouse/")
+sys.path.append("/Users/timbledum/Documents/Python/tmhouse/") # Only required for launchd
 
 from rateslookup import get_rates
 import tmexcel
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     for prop in properties_data:
         loc = prop["Location"]
         if "Rateable value (RV)" in prop:
-            print("Already got rates value for ", loc)
+            print("Already got rates value for", loc)
             continue
 
         else:
