@@ -33,11 +33,11 @@ def create_workbook_if_not_present(sheet_dict):
         wb = openpyxl.Workbook()
         default_sheet = wb.active
 
-        for sheet_name, columns in sheet_dict.values():
+        for sheet_name, columns in sheet_dict.items():
             sheet = wb.create_sheet(sheet_name)
             sheet.append(columns)
 
-        wb.remove_sheet(default_sheet)
+        wb.remove(default_sheet)
 
         wb.save(settings.excel_file_address)
 
@@ -57,6 +57,7 @@ def get_previous_data_from_excel(sheet, column, header_row=1):
 
 
 def save_file(data, sheet, columns):
+    """Append the data in an Excel file."""
     xl_wb = openpyxl.load_workbook(settings.excel_file_address)
     xl_sheet = xl_wb[sheet]
     data_list = [[row.get(key, "") for key in columns] for row in data]

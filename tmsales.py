@@ -18,6 +18,7 @@ def convert_date(date_str):
 
 
 def get_sale_prices():
+    """Scrape the most recent sales from the specified QV URL (region)."""
     session = HTMLSession()
     qv_hamilton = session.get(settings.qv_url)
 
