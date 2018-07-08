@@ -2,8 +2,7 @@
 # coding: utf-8
 
 import openpyxl
-
-EXCEL_FILE = "/Users/timbledum/Dropbox/Documents/Trademe Property List.xlsx"
+from settings import settings
 
 SHEET_NAME = "Properties"
 ID = "id"
@@ -28,12 +27,13 @@ def create_workbook_if_not_present():
     except FileNotFoundError:
         wb = openpyxl.Workbook()
         sh = wb.active
+        sh.title = SHEET_NAME
         sh.append(COLUMNS_TO_KEEP)
-        wb.save(EXCEL_FILE)
+        wb.save(settings.excel_file_address)
 
 
 def get_current_ids():
-    xl_sheet = openpyxl.load_workbook(EXCEL_FILE).active
+    xl_sheet = openpyxl.load_workbook(settings.excel_file_address)[SHEET_NAME]
 
     # Ascertain the ID column
     headers = xl_sheet[HEADERS_ROW]
@@ -46,14 +46,14 @@ def get_current_ids():
 
 
 def save_file(data):
-    xl_wb = openpyxl.load_workbook(EXCEL_FILE)
-    xl_sheet = xl_wb.active
+    xl_wb = openpyxl.load_workbook(settings.excel_file_address)
+    xl_sheet = xl_wb[SHEET_NAME]
     data_list = [[row.get(key, "") for key in COLUMNS_TO_KEEP] for row in data]
 
     for row in data_list:
         xl_sheet.append(row)
 
-    xl_wb.save(EXCEL_FILE)
+    xl_wb.save(settings.excel_file_address)
 
 
 if __name__ == "__main__":

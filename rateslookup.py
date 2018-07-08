@@ -3,8 +3,7 @@
 
 import requests
 from bs4 import BeautifulSoup
-
-RATES_QUERY = "http://www.hamilton.govt.nz/our-services/property-and-rates/propertydatabase/Pages/default.aspx"
+from settings import settings
 
 
 def split_property(prop):
@@ -22,7 +21,7 @@ def get_rates(prop):
     }
 
     # get property link
-    r = requests.get(RATES_QUERY, params=prop_params)
+    r = requests.get(settings.rates_url, params=prop_params)
     r_bs = BeautifulSoup(r.text, "html.parser")
     results = r_bs.find(attrs={"class": "form-results"})
 
