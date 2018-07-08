@@ -1,4 +1,4 @@
-import openpyxl
+"""Scrape property sales information from QV.co.nz."""
 from requests_html import HTMLSession
 from datetime import datetime
 from settings import settings

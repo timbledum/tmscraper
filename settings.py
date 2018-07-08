@@ -1,3 +1,4 @@
+"""Get settings YAML file and load to object."""
 from collections import namedtuple
 from yaml import load
 
