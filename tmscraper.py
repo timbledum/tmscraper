@@ -48,9 +48,7 @@ def get_property_table(href):
         listing_dict[key] = value
 
     listing_date = prop_soup.find(id="PriceSummaryDetails_ListedStatusText")
-    listing_dict["Date listed"] = listing_date.text[8:18].replace(
-        ",", ""
-    ) + " 18"
+    listing_dict["Date listed"] = listing_date.text[8:18].replace(",", "") + " 18"
 
     return listing_dict
 
@@ -65,7 +63,7 @@ def get_href_id(prop):
 def get_properties(bs_tree, old_properties):
     properties = bs_tree.find_all(**FIND_LINKS)
     data = [get_href_id(prop) for prop in properties]
-    data_filtered = [prop for prop in data if prop['id'] not in old_properties]
+    data_filtered = [prop for prop in data if prop["id"] not in old_properties]
 
     for prop in data_filtered:
         print("Processing:", prop["id"])
@@ -80,8 +78,16 @@ if __name__ == "__main__":
     html = tm_request.text
     html_bs = BeautifulSoup(html, "html.parser")
 
-    tmexcel.create_workbook_if_not_present()
-    old_properties = tmexcel.get_current_ids()
+    tmexcel.create_workbook_if_not_present(
+        {
+            tmexcel.SHEET_NAME: tmexcel.COLUMNS_TO_KEEP,
+            tmsales.SALES_SHEET: tmsales.COLUMNS,
+        }
+    )
+
+    old_properties = tmexcel.get_previous_data_from_excel(
+        sheet=tmexcel.SHEET_NAME, column=tmexcel.ID
+    )
     properties_data = get_properties(html_bs, old_properties)
 
     next_links = html_bs.find(id="PagingFooter")("a")[:-1]
@@ -113,10 +119,14 @@ if __name__ == "__main__":
     print("Saving file")
     tmexcel.save_file(properties_data, tmexcel.SHEET_NAME, tmexcel.COLUMNS_TO_KEEP)
 
-    print('Collecting sales prices')
-    previous_sales = tmsales.get_previous_sales()
+    print("Collecting sales prices")
+    previous_sales = tmexcel.get_previous_data_from_excel(
+        sheet=tmsales.SALES_SHEET, column=tmsales.ID
+    )
     current_sales = tmsales.get_sale_prices()
-    sales_to_save = [sale for sale in current_sales if sale[tmsales.COLUMNS[0]] not in previous_sales]
+    sales_to_save = [
+        sale for sale in current_sales if sale[tmsales.COLUMNS[0]] not in previous_sales
+    ]
     tmexcel.save_file(sales_to_save, tmsales.SALES_SHEET, tmsales.COLUMNS)
 
-    print('Done!!!\n\n')
+    print("Done!!!\n\n")

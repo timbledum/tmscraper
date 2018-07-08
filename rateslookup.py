@@ -7,7 +7,7 @@ from settings import settings
 
 
 def split_property(prop):
-    street_address = prop[:prop.find(", ")]
+    street_address = prop[: prop.find(", ")]
     return street_address.split(" ", maxsplit=1)
 
 
