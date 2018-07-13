@@ -10,13 +10,14 @@ A module to scrape various sites for Hamilton housing stuff.
 - [x] Update rather than overwrite Excel file.
 - [X] Get RVs from council website
 - [x] Set up on launchd
-- [ ] Put in threading?
+- [x] Put in threading?
 - [x] Strip '-'s from strings
 - [x] Put urls in Excel file in links
 
 """
 # coding: utf-8
 
+import grequests
 import sys
 from datetime import datetime
 
@@ -30,6 +31,7 @@ import tmsales
 
 if __name__ == "__main__":
     print("#" * 40 + "\n")
+    print(sys.version)
     print("Getting properties", str(datetime.now()))
 
     tmexcel.create_workbook_if_not_present(

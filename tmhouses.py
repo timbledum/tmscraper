@@ -1,4 +1,5 @@
 """Extract data from trademe."""
+import grequests
 import requests
 from bs4 import BeautifulSoup
 
@@ -8,10 +9,9 @@ TM_SITE = r"https://www.trademe.co.nz"
 FIND_LINKS = {"class": "tmp-search-card-list-view__link"}
 
 
-def get_property_table(href):
+def get_property_table(prop_response):
     """Find the table with the key property facts on a property page and return as dict."""
-    prop_details = requests.get(TM_SITE + href)
-    prop_soup = BeautifulSoup(prop_details.text, "html.parser")
+    prop_soup = BeautifulSoup(prop_response.text, "html.parser")
 
     listing_table = prop_soup.find(id="ListingAttributes")
     listing_table_rows = [row for row in listing_table.contents if row != "\n"]
@@ -36,35 +36,53 @@ def get_href_id(prop):
     return output
 
 
-def get_properties(bs_tree, old_properties):
+def get_properties(page):
     """Get the property urls from the trademe search screen and populate with underlying information."""
-    properties = bs_tree.find_all(**FIND_LINKS)
+    page_request = requests.get(page)
+    page_html = page_request.text
+    page_bs = BeautifulSoup(page_html, "html.parser")
+    properties = page_bs.find_all(**FIND_LINKS)
     data = [get_href_id(prop) for prop in properties]
-    data_filtered = [prop for prop in data if prop["id"] not in old_properties]
+    return data
 
-    for prop in data_filtered:
-        print("Processing:", prop["id"])
-        prop.update(get_property_table(prop["href"]))
-    return data_filtered
-
-
-def get_trademe_data(old_properties):
-    """Scan through the pages of the trademe search scraping the property data."""
-    tm_request = requests.get(settings.tm_url)
+def get_page_urls(tm_url):
+    """Get list of pages from trademe."""
+    tm_request = requests.get(tm_url)
     html = tm_request.text
     html_bs = BeautifulSoup(html, "html.parser")
-
-    properties_data = get_properties(html_bs, old_properties)
-
     next_links = html_bs.find(id="PagingFooter")("a")[:-1]
-    next_pages = [TM_SITE + a["href"] for a in next_links]
+    return [tm_url] + [TM_SITE + a["href"] for a in next_links]
 
-    for number, page in enumerate(next_pages):
-        print("Processing page", number + 2)
-        page_request = requests.get(page)
-        page_html = page_request.text
-        page_bs = BeautifulSoup(page_html, "html.parser")
-        page_data = get_properties(page_bs, old_properties)
-        properties_data += page_data
 
-    return properties_data
+def get_property_pages(properties):
+    """Concurrently process the property urls provided."""
+
+    urls = [prop['href'] for prop in properties]
+    requests = [grequests.get(TM_SITE + url) for url in urls]
+    responses = grequests.map(requests, size=5)
+    return responses
+
+
+def get_trademe_data(old_properties=set()):
+    """Scan through the pages of the trademe search scraping the property data."""
+
+    print("Getting pages")
+    pages = get_page_urls(settings.tm_url)
+
+    print("Getting properties and filtering")
+    properties = [prop for page_url in pages for prop in get_properties(page_url)]
+    properties_filtered = [prop for prop in properties if prop["id"] not in old_properties]
+
+    print("Getting property pages")
+    property_pages = get_property_pages(properties_filtered)
+
+    print("Got properties:")
+    print("\n".join(prop['id'] for prop in properties_filtered))
+
+    print("Processing properties")
+    for prop, page in zip(properties_filtered, property_pages):
+        print("Processing:", prop["id"])
+        
+        prop.update(get_property_table(page))
+
+    return properties_filtered
