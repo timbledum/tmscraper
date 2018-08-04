@@ -59,7 +59,7 @@ def get_property_pages(properties):
 
     urls = [prop['href'] for prop in properties]
     requests = [grequests.get(TM_SITE + url) for url in urls]
-    responses = grequests.map(requests, size=5)
+    responses = grequests.map(requests)
     return responses
 
 
