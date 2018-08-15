@@ -11,6 +11,7 @@ FIND_LINKS = {"class": "tmp-search-card-list-view__link"}
 
 def get_property_table(prop_response):
     """Find the table with the key property facts on a property page and return as dict."""
+
     prop_soup = BeautifulSoup(prop_response.text, "html.parser")
 
     listing_table = prop_soup.find(id="ListingAttributes")
@@ -59,8 +60,9 @@ def get_property_pages(properties):
 
     urls = [prop['href'] for prop in properties]
     requests = [grequests.get(TM_SITE + url) for url in urls]
-    responses = grequests.map(requests)
-    return responses
+    responses = grequests.map(requests, size=10)
+
+    return [response for response in reponses if reponse]
 
 
 def get_trademe_data(old_properties=set()):
@@ -83,6 +85,7 @@ def get_trademe_data(old_properties=set()):
     for prop, page in zip(properties_filtered, property_pages):
         print("Processing:", prop["id"])
         
-        prop.update(get_property_table(page))
+        data = get_property_table(page)
+        prop.update(data)
 
     return properties_filtered
