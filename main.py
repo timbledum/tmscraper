@@ -13,6 +13,8 @@ A module to scrape various sites for Hamilton housing stuff.
 - [x] Put in threading?
 - [x] Strip '-'s from strings
 - [x] Put urls in Excel file in links
+- [ ] Parse dates properly
+- [ ] Extract images
 
 """
 # coding: utf-8
