@@ -2,6 +2,7 @@
 import grequests
 import requests
 from bs4 import BeautifulSoup
+from dateutil.parser import parse
 
 from settings import settings
 
@@ -24,7 +25,7 @@ def get_property_table(prop_response):
         listing_dict[key] = value
 
     listing_date = prop_soup.find(id="PriceSummaryDetails_ListedStatusText")
-    listing_dict["Date listed"] = listing_date.text[8:18].replace(",", "") + " 18"
+    listing_dict["Date listed"] = parse(listing_date.text[8:18].replace(",", "") + " 18")
 
     return listing_dict
 
@@ -61,7 +62,7 @@ def get_property_pages(properties):
     urls = [prop['href'] for prop in properties]
     requests = [grequests.get(TM_SITE + url) for url in urls]
     responses = grequests.map(requests, size=10)
-    return [response for response in reponses if reponse]
+    return [response for response in responses if response]
 
 
 
