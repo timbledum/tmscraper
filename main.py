@@ -75,6 +75,7 @@ if __name__ == "__main__":
     sales_to_save = [
         sale for sale in current_sales if sale[tmsales.COLUMNS[0]] not in previous_sales
     ]
+    print("Extracted", len(sales_to_save), "new property sales!")
     tmexcel.save_file(sales_to_save, tmsales.SALES_SHEET, tmsales.COLUMNS)
 
     print("Done!!!\n\n")
