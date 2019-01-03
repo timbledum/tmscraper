@@ -36,6 +36,6 @@ You will need to update the seetings.yaml file to update some of the values to y
 
 The full paths of various files are included in order to ensure that this script can be scheduled by your platforms task scheduler.
 
-## Running th file
+## Running the file
 
-Start the script by typing `python main.py`.
+Start the script by typing `python main.py` from the project folder.
